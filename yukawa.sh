@@ -1,7 +1,10 @@
+rm *.txt
+rm main00
+
+
 make main00
-./main00 > saida.dat
+./main00 > saida.txt
 
-grep -n 'Event Listing' saida.dat | cut -f1 -d: > separadores.dat
-
+grep -n 'Event Listing' saida.txt | cut -f1 -d: > separadores.txt
 
 

@@ -1,5 +1,6 @@
 
-separ=as.numeric(read.table("~/particarlos/pythia8303/r/separadores.dat", quote="\"", comment.char="")$V1)
+setwd("~/particarlos/pythia8303/rpythia")
+separ=as.numeric(read.table("separadores.txt", quote="\"", comment.char="")$V1)
 
 n=length(separ)
 ev=n/2-1
@@ -7,18 +8,17 @@ ev=n/2-1
 
 library(readr)
 
-temp <- read_table2("saida.dat", col_names=FALSE,skip =(separ[2+1]+2),n_max=(separ[2+2]-separ[2+1]-5))
-temp$ev=rep(1,nrow(temp))
-out=temp
 
 
-
-for(i in 2:ev) {
+for(i in 1:ev) {
   
-  temp <- read_table2("saida.dat", col_names=FALSE,skip =(separ[2*i+1]+2),n_max=(separ[2*i+2]-separ[2*i+1]-5))
+  temp <- read_table2("saida.txt", col_names=FALSE,skip =(separ[2*i+1]+2),n_max=(separ[2*i+2]-separ[2*i+1]-5))
  
-  temp$ev=rep(i-1,nrow(temp))
-  out=rbind(out,temp)
+  temp$ev=rep(i,nrow(temp))
+  if (i==1)
+    out=temp
+  else 
+    out=rbind(out,temp)
 }
 
 nomes= c('no','id','name','status', 'mother1','mother2','daughter1','daughter2','colour1','colour2','p_x','p_y','p_z','e','m','ev')
