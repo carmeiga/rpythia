@@ -48,7 +48,7 @@ unique(estables$name)
 library(ggplot2)
 ggplot(estables, aes(name)) + geom_bar()
 
-plot(density(estables$x[abs(estables$x)<1e-6]))
+  plot(density(estables$p_x[abs(estables$pt)<1]))
 
 
 
