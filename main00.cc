@@ -1,18 +1,41 @@
 // Headers and Namespaces.
 #include "Pythia8/Pythia.h" // Include Pythia headers.
 #include <fstream> // for exporting further outputs
+#include <string>
 using namespace Pythia8;
 // Let Pythia8:: be implicit.
-int main() {
-  int n=3; // numero de eventos
+int main(int argc, char *argv[]) {
+  int n=5; // numero de eventos
   // Begin main program.
   // Set up generation.
   Pythia pythia;
   // Declare Pythia object
   //pythia.readString("SoftQCD:inelastic = ON"); // Switch on process.
-  pythia.readString("Top:all = ON");
-  //pythia.readString("WeakSingleBoson:all = ON");
   
+  std::string type = ("SoftQCD:inelastic = ON");
+  
+  char input=argv[1][0];
+  switch (input) {
+  case 's':
+    type = ("SoftQCD:inelastic = ON");
+    break;
+  case 'h':
+    type = ("HardQCD:all = ON");
+    break;
+  case 't':
+    type = ("Top:all = ON");
+    break;
+  case 'w':
+    type = ("WeakSingleBoson:all = ON");
+  default:
+    break;
+  }
+  
+
+  std::cout << argv[1] << "\n";
+  std::cout << type << "\n";
+  
+  pythia.readString(type);
   
   // you must not mix processes from the SoftQCD and HardQCD process groups, 
   // since this is likely to lead to double-counting. 
@@ -20,10 +43,14 @@ int main() {
   std::string nse = "Next:numberShowEvent = " + std::to_string(n);
   pythia.readString(nse); // para gardar os eventos que queiramos
   
-  std::ofstream outputpt("pt.txt"); 
-  std::ofstream outputx("xprod.txt"); 
-  std::ofstream outputy("yprod.txt"); 
-  std::ofstream outputz("zprod.txt"); 
+  std::string spt= "pt_.txt";
+  std::string sxprod="xprod_.txt";
+  std::string syprod="yprod_.txt";
+  std::string szprod="zprod_.txt";
+  std::ofstream outputpt(spt.insert (3,1,input)); 
+  std::ofstream outputx(sxprod.insert (6,1,input)); 
+  std::ofstream outputy(syprod.insert (6,1,input)); 
+  std::ofstream outputz(szprod.insert (6,1,input)); 
   // std::ofstream outputmo("mothers.txt"); 
   // std::ofstream outputda("daughters.txt"); 
   
@@ -62,6 +89,7 @@ int main() {
     
     
   }
+  (void)argc;
   return 0;
 }
 // End main program with error-free return.

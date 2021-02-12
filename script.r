@@ -1,54 +1,57 @@
-
-setwd("~/particarlos/pythia8303/rpythia")
-separ=as.numeric(read.table("separadores.txt", quote="\"", comment.char="")$V1)
-
-n=length(separ)
-ev=n/2-1
-
-
-library(readr)
+s=mesmo_proceso('t',0)
+h=mesmo_proceso('h',1)
+w=mesmo_proceso('w',2)
+t=mesmo_proceso('t',3)
 
 
 
-for(i in 1:ev) {
-  
-  temp <- read_table2("saida.txt", col_names=FALSE,skip =(separ[2*i+1]+2),n_max=(separ[2*i+2]-separ[2*i+1]-5))
- 
-  temp$ev=rep(i,nrow(temp))
-  if (i==1)
-    out=temp
-  else 
-    out=rbind(out,temp)
+estables=rbind(s,h,w,t)
+normalizacions=aggregate(estables$e, list(estables$ev), sum)
+normalizado=estables
+
+for(i in 1:nrow(normalizacions)) {
+  normalizado$e[estables$ev==i]=estables$e[estables$ev==i]/normalizacions$x[i]
 }
 
-nomes= c('no','id','name','status', 'mother1','mother2','daughter1','daughter2','colour1','colour2','p_x','p_y','p_z','e','m','ev')
+aggregate(normalizado$e, list(normalizado$ev), sum)
 
-colnames(out)=nomes
+proba1=normalizado[normalizado$ev==1,(11:15)]
+proba2=normalizado[normalizado$ev==2,(11:15)]
 
-pt <- as.numeric(read_table2("pt.txt", col_names = FALSE)[1,])
-out$pt=pt[-length(pt)]
+n=nrow(proba1)
+m=nrow(proba2)
+custos=matrix(0,nrow=nrow(proba1),ncol=nrow(proba2))
 
-x <- as.numeric(read_table2("xprod.txt", col_names = FALSE)[1,])
-out$x=x[-length(x)]
+minkowski<-function(cuadri1,cuadri2) {
+  return(-cuadri1[5]^2-cuadri2[5]^2-2*(-cuadri1[4]*cuadri2[4]+sum(cuadri1[1:3]*cuadri2[1:3])))
+}
 
-y <- as.numeric(read_table2("yprod.txt", col_names = FALSE)[1,])
-out$y=y[-length(y)]
+for(i in 1:n) {
+  for(j in 1:m){
+    
+    custos[i,j]=minkowski(as.numeric(proba1[i,]),as.numeric(proba2[j,]))
+}
+}
 
-z <- as.numeric(read_table2("zprod.txt", col_names = FALSE)[1,])
-out$z=z[-length(z)]
+wasserstein(proba1$e, proba2$e, p=2, tplan=NULL, costm=abs(custos),prob=TRUE)
 
-estables_n=c('e-','e+','mu+','mu-','K+','K-','pi+','pi-','p+','pbar-','n0','nbar0','gamma','K_L0')
-# parenteses indican particulas intermediarias (desintegranse)
 
-estables=subset(out, (name %in% estables_n))
+  
+  
+
+
+
+
 
 unique(estables$name)
+
+
 
 
 library(ggplot2)
 ggplot(estables, aes(name)) + geom_bar()
 
-  plot(density(estables$p_x[abs(estables$pt)<1]))
+  plot(density(estables$pt[(abs(estables$pt)<2)& (estables$name=='mu+' | estables$name=='mu-')]))
 
 
 

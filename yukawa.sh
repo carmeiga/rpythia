@@ -1,10 +1,13 @@
-rm *.txt
-rm main00
+#!/bin/bash
 
+# rm *.txt
+# rm main00
+
+pro=$1
 
 make main00
-./main00 > saida.txt
+./main00 $pro > saida_$pro.txt
 
-grep -n 'Event Listing' saida.txt | cut -f1 -d: > separadores.txt
+grep -n 'Event Listing' saida_$pro.txt | cut -f1 -d: > separadores_$pro.txt
 
 
