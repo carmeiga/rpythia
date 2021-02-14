@@ -1,4 +1,4 @@
-s=mesmo_proceso('t',0)
+s=mesmo_proceso('s',0)
 h=mesmo_proceso('h',1)
 w=mesmo_proceso('w',2)
 t=mesmo_proceso('t',3)
@@ -7,23 +7,29 @@ t=mesmo_proceso('t',3)
 
 estables=rbind(s,h,w,t)
 normalizacions=aggregate(estables$e, list(estables$ev), sum)
-normalizado=estables
-
-for(i in 1:nrow(normalizacions)) {
-  normalizado$e[estables$ev==i]=estables$e[estables$ev==i]/normalizacions$x[i]
+estables$en=estables$e
+nev=nrow(normalizacions)
+for(i in 1:nev) {
+  estables$en[estables$ev==i]=estables$e[estables$ev==i]/normalizacions$x[i]
 }
 
-aggregate(normalizado$e, list(normalizado$ev), sum)
+aggregate(estables$en, list(estables$ev), sum)
 
-proba1=normalizado[normalizado$ev==1,(11:15)]
-proba2=normalizado[normalizado$ev==2,(11:15)]
+d=matrix(0,nrow=nev,ncol=nev)
+for(k in 13:nev) {
+  for(p in 1:nev) {
+
+proba1=estables[estables$ev==p,c((11:15),22)]
+proba2=estables[estables$ev==k,c((11:15),22)]
+
+
 
 n=nrow(proba1)
 m=nrow(proba2)
 custos=matrix(0,nrow=nrow(proba1),ncol=nrow(proba2))
 
 minkowski<-function(cuadri1,cuadri2) {
-  return(-cuadri1[5]^2-cuadri2[5]^2-2*(-cuadri1[4]*cuadri2[4]+sum(cuadri1[1:3]*cuadri2[1:3])))
+  return(-cuadri1[4]*cuadri1[4]+sum(cuadri1[1:3]*cuadri1[1:3])-cuadri2[4]*cuadri2[4]+sum(cuadri2[1:3]*cuadri2[1:3])-2*(-cuadri1[4]*cuadri2[4]+sum(cuadri1[1:3]*cuadri2[1:3])))
 }
 
 for(i in 1:n) {
@@ -33,13 +39,28 @@ for(i in 1:n) {
 }
 }
 
-wasserstein(proba1$e, proba2$e, p=2, tplan=NULL, costm=abs(custos),prob=TRUE)
+
+d[k,p]=sqrt(wasserstein(proba1$en, proba2$en, p=2, tplan=NULL, costm=abs(custos),prob=TRUE)) # 4-Wasserstein
 
 
+  }  
+}
   
-  
 
+write.table(d,file="distancias.txt",row.names=FALSE,col.names=FALSE) 
 
+distancias <- read.table("~/particarlos/pythia8303/rpythia/distancias.txt", quote="\"", comment.char="")
+
+sim=as.matrix(distancias+t(distancias))/2
+
+diag(sim)=0
+
+library(energy)
+
+simd=as.dist(sim)
+
+# https://github.com/mariarizzo/kgroups do 2019
+res=kgroups(simd, 4, iter.max = 10, nstart = 1, cluster = )
 
 
 
