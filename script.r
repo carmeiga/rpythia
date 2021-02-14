@@ -47,9 +47,9 @@ d[k,p]=sqrt(wasserstein(proba1$en, proba2$en, p=2, tplan=NULL, costm=abs(custos)
 }
   
 
-write.table(d,file="distancias.txt",row.names=FALSE,col.names=FALSE) 
+write.table(d,file="distancias.dat",row.names=FALSE,col.names=FALSE) 
 
-distancias <- read.table("~/particarlos/pythia8303/rpythia/distancias.txt", quote="\"", comment.char="")
+distancias <- read.table("~/particarlos/pythia8303/rpythia/distancias.dat", quote="\"", comment.char="")
 
 sim=as.matrix(distancias+t(distancias))/2
 
