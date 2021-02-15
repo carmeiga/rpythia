@@ -5,7 +5,7 @@
 using namespace Pythia8;
 // Let Pythia8:: be implicit.
 int main(int argc, char *argv[]) {
-  int n=5; // numero de eventos
+  int n=20; // numero de eventos
   // Begin main program.
   // Set up generation.
   Pythia pythia;
