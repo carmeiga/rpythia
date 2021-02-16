@@ -1,5 +1,5 @@
 mesmo_proceso<-function(pro,tot) {
-  
+  setwd("~/particarlos/pythia8303/rpythia")
   pat=paste("_",pro,".txt$",sep="")
   
   list_of_files <- list.files(path = ".", recursive = TRUE,
@@ -7,8 +7,8 @@ mesmo_proceso<-function(pro,tot) {
                               full.names = FALSE)
   
   
-  setwd("~/particarlos/pythia8303/rpythia")
-  separ=as.numeric(read.table(list_of_files[3], quote="\"", comment.char="")$V1)
+
+  separ=as.numeric(read.table(list_of_files[4], quote="\"", comment.char="")$V1)
   
   n=length(separ)
   ev=n/2-1
@@ -20,7 +20,7 @@ mesmo_proceso<-function(pro,tot) {
   
   for(i in 1:ev) {
     
-    temp <- read_table2(list_of_files[2], col_names=FALSE,skip =(separ[2*i+1]+2),n_max=(separ[2*i+2]-separ[2*i+1]-5))
+    temp <- read_table2(list_of_files[3], col_names=FALSE,skip =(separ[2*i+1]+2),n_max=(separ[2*i+2]-separ[2*i+1]-5))
     
     temp$ev=rep(i+tot*ev,nrow(temp))
     if (i==1)
@@ -33,17 +33,23 @@ mesmo_proceso<-function(pro,tot) {
   
   colnames(out)=nomes
   
-  pt <- as.numeric(read_table2(list_of_files[1], col_names = FALSE)[1,])
+  pt <- as.numeric(read_table2(list_of_files[2], col_names = FALSE)[1,])
   out$pt=pt[-length(pt)]
   
-  x <- as.numeric(read_table2(list_of_files[4], col_names = FALSE)[1,])
+  x <- as.numeric(read_table2(list_of_files[6], col_names = FALSE)[1,])
   out$x=x[-length(x)]
   
-  y <- as.numeric(read_table2(list_of_files[5], col_names = FALSE)[1,])
+  y <- as.numeric(read_table2(list_of_files[7], col_names = FALSE)[1,])
   out$y=y[-length(y)]
   
-  z <- as.numeric(read_table2(list_of_files[6], col_names = FALSE)[1,])
+  z <- as.numeric(read_table2(list_of_files[8], col_names = FALSE)[1,])
   out$z=z[-length(z)]
+  
+  q <- as.numeric(read_table2(list_of_files[1], col_names = FALSE)[1,])
+  out$q=q[-length(q)]
+  
+  spin <- as.numeric(read_table2(list_of_files[5], col_names = FALSE)[1,])
+  out$spin=spin[-length(spin)]
   
   estables_n=c('e-','e+','mu+','mu-','K+','K-','pi+','pi-','p+','pbar-','n0','nbar0','gamma','K_L0')
   # parenteses indican particulas intermediarias (desintegranse)
@@ -51,7 +57,13 @@ mesmo_proceso<-function(pro,tot) {
   estables=subset(out, (name %in% estables_n))
   
   final=cbind(estables,rep(pro,nrow(estables)))
-  names(final)[21] <- "proc"
+  names(final)[23] <- "proc"
+  final$b=as.numeric(final$name=='p+' | final$name=='pbar-' | final$name=='n0' | final$name=='nbar0')
+  final$le=as.numeric(final$name=='e+' | final$name=='e-')
+  final$lm=as.numeric(final$name=='mu+' | final$name=='mu-')
+  
+  
+  
   
   return(final)
 }

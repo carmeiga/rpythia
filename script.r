@@ -1,7 +1,12 @@
+setwd("~/particarlos/pythia8303/rpythia")
+source('ler.r')
+
 s=mesmo_proceso('s',0)
 h=mesmo_proceso('h',1)
 w=mesmo_proceso('w',2)
 t=mesmo_proceso('t',3)
+
+
 
 library(transport)
 
@@ -17,7 +22,6 @@ minkowskiFuncPtr <- cppXPtr(
 }", depends = c("RcppArmadillo"))
 
 
-# distance matrix for user-defined euclidean distance function (note that method is set to "custom")
 
 
 
@@ -30,7 +34,9 @@ for(i in 1:nev) {
   estables$en[estables$ev==i]=estables$e[estables$ev==i]/normalizacions$x[i]
 }
 
-aggregate(estables$en, list(estables$ev), sum)
+aggregate(estables$proc, list(estables$ev),max)
+
+
 
 d=matrix(0,nrow=nev,ncol=nev)
 for(k in 1:nev) {
@@ -79,16 +85,35 @@ write.table(d,file="distancias.dat",row.names=FALSE,col.names=FALSE)
 distancias <- read.table("distancias.dat", quote="\"", comment.char="")
 
 sim=as.matrix(distancias+t(distancias))/2
-
+    
 diag(sim)=0
+
+
+
+perm=sample(seq(1:400), 400,replace = FALSE, prob = NULL)
+shuffle=sim[perm,perm]
 
 library(energy)
 
 simd=as.dist(sim)
+simp=as.dist(shuffle)
+simd2=as.dist(sim[(1:473),(1:473)])
 
 # https://github.com/mariarizzo/kgroups do 2019
-res=kgroups(simd, 4, iter.max = 10, nstart = 1, cluster = )
+res=kgroups(simd, 4, iter.max = 15, nstart = 1, cluster = NULL)
+resp=kgroups(simp, 2, iter.max = 15, nstart = 1, cluster = NULL)
+resp
 
+
+res2=kgroups(simd2, 2,iter.max = 15, nstart = 1, cluster = NULL)
+
+order(perm)
+resp$cluster[order(perm)]
+
+estables_n=c('e-','e+','mu+','mu-','K+','K-','pi+','pi-','p+','pbar-','n0','nbar0','gamma','K_L0')
+
+
+variables=c('le','lmu','ltau','b','q','s')
 
 
 unique(estables$name)
