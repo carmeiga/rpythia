@@ -51,7 +51,7 @@ mesmo_proceso<-function(pro,tot) {
   spin <- as.numeric(read_table2(list_of_files[5], col_names = FALSE)[1,])
   out$spin=spin[-length(spin)]
   
-  estables_n=c('e-','e+','mu+','mu-','K+','K-','pi+','pi-','p+','pbar-','n0','nbar0','gamma','K_L0')
+  estables_n=c('e-','e+','mu+','mu-','K+','K-','pi+','pi-','p+','pbar-','n0','nbar0','gamma','K_L0') #quitar neutras
   # parenteses indican particulas intermediarias (desintegranse)
   
   estables=subset(out, (name %in% estables_n))
