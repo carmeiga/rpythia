@@ -22,6 +22,13 @@ minkowskiFuncPtr <- cppXPtr(
 }", depends = c("RcppArmadillo"))
 
 
+trivial_dist  <- cppXPtr(
+  "double customDist(const arma::mat &A, const arma::mat &B) {
+  return ((A(0,0)!=B(0,0))+pow(A(0,1)-B(0,1),2)+(A(0,2)!=B(0,2))+(A(0,3)!=B(0,3))+(A(0,4)!=B(0,4)));
+}", depends = c("RcppArmadillo"))
+
+
+
 
 
 
@@ -42,8 +49,11 @@ d=matrix(0,nrow=nev,ncol=nev)
 for(k in 1:nev) {
   for(p in 1:nev) {
 
-proba1=estables[estables$ev==p,c(22,14,(11:13))]
-proba2=estables[estables$ev==k,c(22,14,(11:13))]
+proba1=estables[estables$ev==p,c(27,14,(11:13))]
+proba2=estables[estables$ev==k,c(27,14,(11:13))]
+
+disc1=estables[estables$ev==p,c('q','spin','b','le','lm')]
+disc2=estables[estables$ev==k,c('q','spin','b','le','lm')]
 
 
 
@@ -63,10 +73,16 @@ custos=matrix(0,nrow=nrow(proba1),ncol=nrow(proba2))
 # }
 # }
 
-res=parDist(as.matrix(rbind(proba1[,-1],proba2[,-1])), method="custom", func = minkowskiFuncPtr)
+res1=parDist(as.matrix(rbind(proba1[,-1],proba2[,-1])), method="custom", func = minkowskiFuncPtr)
+res2=parDist(as.matrix(rbind(disc1,disc2)), method="custom", func = trivial_dist)
+
+castres=as.matrix(res1)+as.matrix(res2) #distancia ao cadrado
+
+
+
 # }
 
-castres=as.matrix(res)
+
 
 
 
@@ -84,13 +100,13 @@ d[k,p]=sqrt(wasserstein(proba1$en, proba2$en, p=2, tplan=NULL, costm=abs(custos)
 write.table(d,file="distancias.dat",row.names=FALSE,col.names=FALSE)
 distancias <- read.table("distancias.dat", quote="\"", comment.char="")
 
-sim=as.matrix(distancias+t(distancias))/2
+sim=as.matrix(d+t(d))/2
     
 diag(sim)=0
 
 
 
-perm=sample(seq(1:400), 400,replace = FALSE, prob = NULL)
+perm=sample(seq(1:nev), nev,replace = FALSE, prob = NULL)
 shuffle=sim[perm,perm]
 
 library(energy)
@@ -101,7 +117,7 @@ simd2=as.dist(sim[(1:473),(1:473)])
 
 # https://github.com/mariarizzo/kgroups do 2019
 res=kgroups(simd, 4, iter.max = 15, nstart = 1, cluster = NULL)
-resp=kgroups(simp, 2, iter.max = 15, nstart = 1, cluster = NULL)
+resp=kgroups(simp, 4, iter.max = 15, nstart = 1, cluster = NULL)
 resp
 
 
