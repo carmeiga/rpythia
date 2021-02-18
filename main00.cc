@@ -50,12 +50,14 @@ int main(int argc, char *argv[]) {
   std::string sspin="spin_.txt";
   std::string scharge="charge_.txt";
   std::string sbaryon="baryon_.txt";
+  std::string set="et_.txt";
   std::ofstream outputpt(spt.insert (3,1,input)); 
   std::ofstream outputx(sxprod.insert (6,1,input)); 
   std::ofstream outputy(syprod.insert (6,1,input)); 
   std::ofstream outputz(szprod.insert (6,1,input)); 
   std::ofstream outputsp(sspin.insert (5,1,input));
   std::ofstream outputch(scharge.insert (7,1,input));
+  std::ofstream outputet(set.insert (3,1,input));
   // std::ofstream outputb(sbaryon.insert (7,1,input));
   // std::ofstream outputmo("mothers.txt"); 
   // std::ofstream outputda("daughters.txt"); 
@@ -88,6 +90,9 @@ int main(int argc, char *argv[]) {
     }
     for (int i = 0; i < pythia.event.size(); ++i) {
       outputch << pythia.event[i].charge() << " ";
+    }
+    for (int i = 0; i < pythia.event.size(); ++i) {
+      outputet << pythia.event[i].eT() << " ";
     }
     // for (int i = 0; i < pythia.event.size(); ++i) {
     //   outputb << pythia.event[i].isMeson() << " ";

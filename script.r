@@ -27,6 +27,11 @@ trivial_dist  <- cppXPtr(
   return ((A(0,0)!=B(0,0))+pow(A(0,1)-B(0,1),2)+(A(0,2)!=B(0,2))+(A(0,3)!=B(0,3))+(A(0,4)!=B(0,4)));
 }", depends = c("RcppArmadillo"))
 
+angular_dist <- cppXPtr(
+  "double customDist(const arma::mat &A, const arma::mat &B) {
+  return (arma::accu(arma::square(A - B))-2*pow(A(0,0)-B(0,0),2));
+}", depends = c("RcppArmadillo"))
+
 
 
 
