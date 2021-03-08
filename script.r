@@ -64,40 +64,48 @@ cppFunction('arma::vec ips(arma::mat P, arma::mat V) {
 
 
 estables=rbind(s,h,w,t)
-normalizacions=aggregate(estables$e, list(estables$ev), sum)
-estables$en=estables$e
+
+estables$el=log(estables$e+1)
+
+
+normalizacions=aggregate(estables$el, list(estables$ev), sum)
+
+estables$en=estables$el
+
 nev=nrow(normalizacions)
 for(i in 1:nev) {
-  estables$en[estables$ev==i]=estables$e[estables$ev==i]/normalizacions$x[i]
+  estables$en[estables$ev==i]=estables$el[estables$ev==i]/normalizacions$x[i]
 }
 
 aggregate(estables$proc, list(estables$ev),max)
 
 ipss=ips(cbind(estables$p_x,estables$p_y,rep(0,length(estables$p_x))),cbind(estables$x,estables$y,rep(0,length(estables$p_x))))
 
+ipss=ipss/sd(ipss)
 estables$ips=ipss
+
 
 estables$n1=estables$e/estables$et
 estables$n2=estables$p_x/estables$et
 estables$n3=estables$p_y/estables$et
 estables$n4=estables$p_z/estables$et
 
-grupo=as.matrix(cbind(estables$n1,estables$n2,estables$n3,estables$n4))
+#grupo=as.matrix(cbind(estables$n1,estables$n2,estables$n3,estables$n4))
 
-sigma=cov(grupo)
-sigmainv=solve(sigma)
+#sigma=cov(grupo)
+#sigmainv=solve(sigma)
 
-sigmam=chol(sigmainv)
-grupo=grupo%*%t(sigmam)
+#sigmam=chol(sigmainv)
+#grupo=grupo%*%t(sigmam)
 
 
-estables$n1=grupo[,1]
-estables$n2=grupo[,2]
-estables$n3=grupo[,3]
-estables$n4=grupo[,4]
-normalize=function(x) {
-  return((x-min(x))/(max(x)-min(x)))
-}
+# estables$n1=grupo[,1]
+# estables$n2=grupo[,2]
+# estables$n3=grupo[,3]
+# estables$n4=grupo[,4]
+# normalize=function(x) {
+#   return((x-min(x))/(max(x)-min(x)))
+# }
 
 
 
@@ -152,8 +160,8 @@ custos=matrix(0,nrow=n,ncol=m)
 
 res1=parDist(as.matrix(rbind(cuadri1,cuadri2)), method="custom", func = minkowskiFuncPtr)
 #res2=parDist(as.matrix(rbind(disc1,disc2)), method="custom", func = trivial_dist)
-if((sum(ip1)<1e-20) | (sum(ip2)<1e-20) ){res3=matrix(rep(0,(n+m)^2),ncol=n+m)
-}else{res3=parDist(as.matrix(c(ip1,ip2)),method='mahalanobis')}
+if((sum(ip1)<1e-20) & (sum(ip2)<1e-20) ){res3=matrix(rep(0,(n+m)^2),ncol=n+m)
+}else{res3=parDist(as.matrix(c(ip1,ip2)),method='euclidean')}
 
 castres=sqrt(sqrt(abs(as.matrix(res1)))+(as.matrix(res3)))#+sqrt(as.matrix(res2))
 
@@ -179,7 +187,7 @@ d[k,p]=wasserstein(as.numeric(en1), as.numeric(en2), p=2, tplan=NULL, costm=abs(
 
 
 write.table(d,file="distancias.dat",row.names=FALSE,col.names=FALSE)
-distancias <- read.table("distancias.dat", quote="\"", comment.char="")
+#distancias <- read.table("distancias.dat", quote="\"", comment.char="")
 
 getmode <- function(v) {
   uniqv <- unique(v)
@@ -192,7 +200,7 @@ diag(sim)=0
 
 
   
-  perm=sample(1:nev, nev,replace = FALSE, prob = NULL)
+  perm=sample( c((101:200),(201:400)),300,replace = FALSE, prob = NULL)
   shuffle=sim[perm,perm]
   
   library(energy)
@@ -201,25 +209,37 @@ diag(sim)=0
   
   #simd=as.dist(sim)
   simp=as.dist(shuffle)
-  #simd2=as.dist(sim[(1:473),(1:473)])
+ # simd2=as.dist(sim[(:),(1:473)])
   
-  # https://github.com/mariarizzo/kgroups do 2019
-  #res=kgroups(simd, 4, iter.max = 15, nstart = 1, cluster = NULL)
-  resp=kgroups(as.dist(sim), 4, iter.max = 1, nstart = 1, cluster = NULL)
-  resp$cluster
+  # https://github.com/mariarizzo/k groups do 2019
+  res=kgroups(simp, 3, iter.max = 20, nstart = 3, cluster = NULL)
+  resp=kgroups(as.dist(sim), 4, iter.max = 1, nstart = 3, cluster = NULL)
+  tags=resp$cluster
   
   
   #res2=kgroups(simd2, 2,iter.max = 15, nstart = 1, cluster = NULL)
   
   #order(perm)
-  tags=resp$cluster[order(perm)]
+  tags2=res$cluster[order(perm)]
+  tags2
   
+  
+  step=floor(length(tags2)/2)
+  getmode(tags2[1:step])
+  table(tags2[1:step])
+  getmode(tags2[(step+1):(2*step)])
+  table(tags2[(step+1):(2*step)])
+  getmode(tags2[(2*step+1):(3*step)])
+  table(tags2[(2*step+1):(3*step)])
+  getmode(tags2[(3*step+1):(4*step)])
   
   step=floor(length(tags)/4)
   getmode(tags[1:step])
   getmode(tags[(step+1):(2*step)])
   getmode(tags[(2*step+1):(3*step)])
   getmode(tags[(3*step+1):(4*step)])
+  
+  table(tags)
 
 
 variables=c('le','lmu','ltau','b','q','s')
@@ -249,6 +269,21 @@ ggplot(estables, aes(name)) + geom_bar()
   
   #prob=(cuadri1$n1)^2-cuadri1$n2^2-cuadri1$n3^2-cuadri1$n4^2
   #probdif=(cuadri1$n1[1]-cuadri2$n1[1])^2-(cuadri1$n2[1]-cuadri2$n2[1])^2-(cuadri1$n3[1]-cuadri2$n3[1])^2-(cuadri1$n4[1]-cuadri2$n4[1])^2
+
+
+
+
+mean(ipss[estables$proc=='t'])/sd(ipss)
+mean(ipss[estables$proc=='s'])/sd(ipss)
+mean(ipss[estables$proc=='h'])/sd(ipss)
+mean(ipss[estables$proc=='w'])/sd(ipss)
+
+mean(estables$n1[estables$proc=='t'])
+mean(estables$n2[estables$proc=='s'])
+mean(estables$n3[estables$proc=='h'])
+mean(estables$n4[estables$proc=='w'])
+
+
 
 
 
