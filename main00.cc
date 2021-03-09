@@ -5,7 +5,7 @@
 using namespace Pythia8;
 // Let Pythia8:: be implicit.
 int main(int argc, char *argv[]) {
-  int n=100;// numero de eventos
+  int n=150;// numero de eventos
   // Begin main program.
   // Set up generation.
   Pythia pythia;
@@ -40,6 +40,7 @@ int main(int argc, char *argv[]) {
   // you must not mix processes from the SoftQCD and HardQCD process groups, 
   // since this is likely to lead to double-counting. 
   pythia.readString("Beams:eCM = 14000."); // eV CM energy.
+  pythia.readString("PhaseSpace:pTHatMin = 20."); // Compulsoryor hard processes
   std::string nse = "Next:numberShowEvent = " + std::to_string(n);
   pythia.readString(nse); // para gardar os eventos que queiramos
   

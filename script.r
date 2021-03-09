@@ -77,7 +77,7 @@ for(i in 1:nev) {
   estables$en[estables$ev==i]=estables$el[estables$ev==i]/normalizacions$x[i]
 }
 
-aggregate(estables$proc, list(estables$ev),max)
+lista=aggregate(estables$proc, list(estables$ev),max)
 
 ipss=ips(cbind(estables$p_x,estables$p_y,rep(0,length(estables$p_x))),cbind(estables$x,estables$y,rep(0,length(estables$p_x))))
 
@@ -85,7 +85,7 @@ ipss=ipss/sd(ipss)
 estables$ips=ipss
 
 
-estables$n1=estables$e/estables$et
+#estables$n1=estables$e/estables$et
 estables$n2=estables$p_x/estables$et
 estables$n3=estables$p_y/estables$et
 estables$n4=estables$p_z/estables$et
@@ -120,8 +120,8 @@ for(k in 1:nev) {
     ind1=(estables$ev==p)
     ind2=(estables$ev==k)
     
-    cuadri1=estables[ind1,c('n1','n2','n3','n4')]
-    cuadri2=estables[ind2,c('n1','n2','n3','n4')]
+    cuadri1=estables[ind1,c('n2','n3','n4')]
+    cuadri2=estables[ind2,c('n2','n3','n4')]
     #cuadri1=apply(cuadri1,2,normalize)
     #cuadri2=apply(cuadri2,2,normalize)
 
@@ -158,7 +158,8 @@ custos=matrix(0,nrow=n,ncol=m)
 # }
 # }
 
-res1=parDist(as.matrix(rbind(cuadri1,cuadri2)), method="custom", func = minkowskiFuncPtr)
+#res1=parDist(as.matrix(rbind(cuadri1,cuadri2)), method="custom", func = minkowskiFuncPtr)
+res1=parDist(as.matrix(rbind(cuadri1,cuadri2)), method="euclidean")
 #res2=parDist(as.matrix(rbind(disc1,disc2)), method="custom", func = trivial_dist)
 if((sum(ip1)<1e-20) & (sum(ip2)<1e-20) ){res3=matrix(rep(0,(n+m)^2),ncol=n+m)
 }else{res3=parDist(as.matrix(c(ip1,ip2)),method='euclidean')}
@@ -200,7 +201,7 @@ diag(sim)=0
 
 
   
-  perm=sample( c((101:200),(201:400)),300,replace = FALSE, prob = NULL)
+  perm=sample(c(1:20,60:80),40,replace = FALSE, prob = NULL)
   shuffle=sim[perm,perm]
   
   library(energy)
@@ -224,7 +225,7 @@ diag(sim)=0
   tags2
   
   
-  step=floor(length(tags2)/2)
+  step=floor(length(tags2)/4)
   getmode(tags2[1:step])
   table(tags2[1:step])
   getmode(tags2[(step+1):(2*step)])
@@ -284,12 +285,55 @@ mean(estables$n3[estables$proc=='h'])
 mean(estables$n4[estables$proc=='w'])
 
 
+emedias=aggregate(estables$e, list(estables$ev), mean)
+ptmedios=aggregate(estables$pt, list(estables$ev), mean)
+ipmedios=aggregate(estables$ips, list(estables$ev), mean)
+pv=sqrt(estables$x^2+estables$y^2)
+
+pvmedios=aggregate(pv, list(estables$ev), mean)
+
+plot(log(ptmedios$x),log(emedias$x))
+points(log(ptmedios$x[lista$x=='t']),log(emedias$x[lista$x=='t']),col='red')
+points(log(ptmedios$x[lista$x=='s']),log(emedias$x[lista$x=='s']),col='blue')
+points(log(ptmedios$x[lista$x=='w']),log(emedias$x[lista$x=='w']),col='green')
+points(log(ptmedios$x[lista$x=='h']),log(emedias$x[lista$x=='h']),col='darkorange')
+
+plot(log(ptmedios$x),log(emedias$x))
+points(log(ptmedios$x[tags2=='1']),log(emedias$x[tags2=='1']),col='red')
+points(log(ptmedios$x[tags2=='2']),log(emedias$x[tags2=='2']),col='blue')
+points(log(ptmedios$x[tags2=='3']),log(emedias$x[tags2=='3']),col='green')
+points(log(ptmedios$x[tags2=='4']),log(emedias$x[tags2=='4']),col='darkorange')
 
 
 
+plot(log(ptmedios$x),log(ipmedios$V1))
+plot(log(ptmedios$x[lista$x=='t']),log(ipmedios$V1[lista$x=='t']),col='red')
+points(log(ptmedios$x[lista$x=='w']),log(ipmedios$V1[lista$x=='w']),col='green')
+points(log(ptmedios$x[lista$x=='h']),log(ipmedios$V1[lista$x=='h']),col='darkorange')
+points(log(ptmedios$x[lista$x=='s']),log(ipmedios$V1[lista$x=='s']),col='blue')
+
+plot((ptmedios$x),(pvmedios$x))
+points((ptmedios$x[lista$x=='t']),((pvmedios$x[lista$x=='t'])),col='red')
+points((ptmedios$x[lista$x=='w']),(pvmedios$x[lista$x=='w']),col='green')
+points(log(ptmedios$x[lista$x=='h']),log(ipmedios$V1[lista$x=='h']),col='darkorange')
+points(log(ptmedios$x[lista$x=='s']),log(ipmedios$V1[lista$x=='s']),col='blue')
 
 
 
+plot(ptmedios$x,pvmedios$x)
+
+
+
+library(reticulate)
+py_install("ot")
+
+
+import('Wasserstein')
+use_condaenv("r-reticulate")
+conda_create("r-reticulate")
+
+# install SciPy
+conda_install("r-reticulate", "ot")
 
 
 
