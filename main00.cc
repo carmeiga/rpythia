@@ -5,7 +5,7 @@
 using namespace Pythia8;
 // Let Pythia8:: be implicit.
 int main(int argc, char *argv[]) {
-  int n=150;// numero de eventos
+  int n=200;// numero de eventos
   // Begin main program.
   // Set up generation.
   Pythia pythia;
@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
   switch (input) {
   case 's':
     type = ("SoftQCD:inelastic = ON");
-    break;
+    break;  
   case 'h':
     type = ("HardQCD:all = ON");
     break;
@@ -40,7 +40,7 @@ int main(int argc, char *argv[]) {
   // you must not mix processes from the SoftQCD and HardQCD process groups, 
   // since this is likely to lead to double-counting. 
   pythia.readString("Beams:eCM = 14000."); // eV CM energy.
-  pythia.readString("PhaseSpace:pTHatMin = 20."); // Compulsoryor hard processes
+  pythia.readString("PhaseSpace:pTHatMin = 15."); // Compulsory for hard processes
   std::string nse = "Next:numberShowEvent = " + std::to_string(n);
   pythia.readString(nse); // para gardar os eventos que queiramos
   
@@ -52,6 +52,8 @@ int main(int argc, char *argv[]) {
   std::string scharge="charge_.txt";
   std::string sbaryon="baryon_.txt";
   std::string set="et_.txt";
+  std::string srapi="rapi_.txt";
+  std::string sphi="phi_.txt";
   std::ofstream outputpt(spt.insert (3,1,input)); 
   std::ofstream outputx(sxprod.insert (6,1,input)); 
   std::ofstream outputy(syprod.insert (6,1,input)); 
@@ -59,6 +61,8 @@ int main(int argc, char *argv[]) {
   std::ofstream outputsp(sspin.insert (5,1,input));
   std::ofstream outputch(scharge.insert (7,1,input));
   std::ofstream outputet(set.insert (3,1,input));
+  std::ofstream outputrapi(srapi.insert (5,1,input));
+  std::ofstream outputphi(sphi.insert (4,1,input));
   // std::ofstream outputb(sbaryon.insert (7,1,input));
   // std::ofstream outputmo("mothers.txt"); 
   // std::ofstream outputda("daughters.txt"); 
@@ -94,6 +98,12 @@ int main(int argc, char *argv[]) {
     }
     for (int i = 0; i < pythia.event.size(); ++i) {
       outputet << pythia.event[i].eT() << " ";
+    }
+    for (int i = 0; i < pythia.event.size(); ++i) {
+      outputphi << pythia.event[i].phi() << " ";
+    }
+    for (int i = 0; i < pythia.event.size(); ++i) {
+      outputrapi << pythia.event[i].eta() << " ";
     }
     // for (int i = 0; i < pythia.event.size(); ++i) {
     //   outputb << pythia.event[i].isMeson() << " ";
