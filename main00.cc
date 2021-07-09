@@ -21,12 +21,23 @@ int main(int argc, char *argv[]) {
     break;  
   case 'h':
     type = ("HardQCD:all = ON");
+    pythia.readString("PhaseSpace:pTHatMin = 15."); // Compulsory for hard processes
+    
     break;
   case 't':
     type = ("Top:all = ON");
     break;
   case 'w':
     type = ("WeakSingleBoson:all = ON");
+    break;
+  case 'b':
+    pythia.readString("Higgs:useBSM = ON");
+    type = ("HiggsBSM:all = ON");
+    pythia.readString("25:m0 = 115.");
+    pythia.readString("35:m0 = 300.");
+    pythia.readString("36:m0 = 300.");
+    pythia.readString("37:m0 = 320.");
+    break;
   default:
     break;
   }
@@ -40,7 +51,6 @@ int main(int argc, char *argv[]) {
   // you must not mix processes from the SoftQCD and HardQCD process groups, 
   // since this is likely to lead to double-counting. 
   pythia.readString("Beams:eCM = 14000."); // eV CM energy.
-  pythia.readString("PhaseSpace:pTHatMin = 15."); // Compulsory for hard processes
   std::string nse = "Next:numberShowEvent = " + std::to_string(n);
   pythia.readString(nse); // para gardar os eventos que queiramos
   
@@ -121,6 +131,7 @@ int main(int argc, char *argv[]) {
     
   }
   (void)argc;
+  pythia.stat();
   return 0;
 }
 // End main program with error-free return.
